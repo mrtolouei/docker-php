@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - "${HOST_HTTP_PORT}:80"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - my_bridge_network
+    volumes:
+      - .:/var/www/html
+
+  mysql:
+    image: mysql/mysql-server:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MSYQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    ports:
+      - "${MYSQL_PORT}:3306"
+    networks:
+      - my_bridge_network
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - my_bridge_network
+
+networks:
+  my_bridge_network:
+    driver: bridge
